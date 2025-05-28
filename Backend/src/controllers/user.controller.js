@@ -22,9 +22,9 @@ export const register = async (req, res) => {
             password,
         });
 
-        if (newUser) {
+        if (newUser) {//kullanıcı oluşturulduysa token oluştur
             // generate jwt token here
-            generateToken(newUser._id, res);
+            generateToken(newUser._id, res);// generateToken fonksiyonunu çağırarak token oluştur
             await newUser.save();
 
             res.status(201).json({
@@ -53,12 +53,12 @@ export const login = async (req, res) => {
             return res.status(404).json({ message: "User not found!!" }); // Send a 404 response if the user is not found
         }
 
-        const isMatch = await user.comparePassword(password); // Compare the provided password with the hashed password in the database
+        const isMatch = await user.comparePassword(password); // şifreyi dbdeki kullanıcı şifresiyle karşılaştır
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid credentials" }); // Send a 400 response if the password does not match
         }
 
-        generateToken(user._id, res); // Generate a token for the user and send it in the response
+        generateToken(user._id, res); //Kullanıcı için bir token oluşturun ve yanıt olarak gönderin
         return res.status(200).json({ message: "Login successful", user }); // Send a 200 response if the login is successful
 
     } catch (error) {
@@ -72,9 +72,9 @@ export const logout = async (req, res) => {
 
     try {
         res.clearCookie("token", { // Clear the token cookie from the response
-            httpOnly: true,
-            secure: true,
-            sameSite: "none",
+            httpOnly: true,// HTTP üzerinden erişilebilir, JavaScript tarafından erişilemez
+            secure: true,//yalnızca HTTPS üzerinden gönderilir
+            sameSite: "none",//farklı alan adlarından gelen isteklerde kullanılabilir
         });
 
         return res.status(200).json({ message: "Logout successful" }); // Send a 200 response if the logout is successful
@@ -83,3 +83,44 @@ export const logout = async (req, res) => {
         console.error("Error logging out:", error); // Log the error to the console
     }
 };
+
+export const checkUser = async (req, res) => {
+    try {
+        if (!req.user) {
+            return res.status(401).json({ message: "Unauthorized" });
+        }
+
+        res.status(200).json({
+            _id: req.user._id,
+            username: req.user.username,
+            email: req.user.email,
+            profilePic: req.user.profilePic,
+        });
+    } catch (error) {
+        console.error("Error in checkUser controller:", error);
+        res.status(500).json({ message: "Internal Server Error" });
+    }
+};
+
+export const updateProfile = async (req, res) => {
+
+    try {
+        const { username } = req.body; // Destructure profilePic from the request body
+        const userId = req.user._id; // Get the user ID from the request object
+
+        if (!username) {
+            return res.status(400).json({ message: "Please provide a username" });
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(userId, { username }, { new: true }).select("-password"); // Update the user's profile picture in the database
+
+        res.status(200).json({ message: "Username updated successfully", user: updatedUser });
+
+    } catch (error) {
+
+        res.status(500).json({ message: "Internal server error" }); // Send a 500 response if an error occurs
+        console.error("Error updating profile:", error); // Log the error to the console
+
+    }
+}
+

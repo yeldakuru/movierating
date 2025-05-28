@@ -7,16 +7,16 @@ dotenv.config();
 export const adminOnly = (req, res, next) => {
     const adminEmail = process.env.ADMIN_EMAIL;
 
-    if (!req.user || req.user.email !== adminEmail) {
+    if (!req.user || req.user.email !== adminEmail) {//eğer kullanıcı yoksa veya kullanıcının emaili admin emailiyle eşleşmiyorsa
         return res.status(403).json({ message: "Access denied. Admins only." });
     }
 
-    next();
+    next();//sıradaki fonksiyona geç
 };
 
 export const userLoggedIn = async (req, res, next) => {
     try {
-        const token = req.cookies.jwt; // Get the token from the cookies
+        const token = req.cookies.token; // Get the token from the cookies
         if (!token) {
             return res.status(401).json({ message: "Unauthorized" }); // Send a 401 response if the token is not found
         }
@@ -40,6 +40,5 @@ export const userLoggedIn = async (req, res, next) => {
         res.status(500).json({ message: "Unauthorized !!" }); // Send a 401 response if an error occurs
         console.error("Error in authMiddleware:", error); // Log the error to the console
     }
-}
+};
 
-export const isAdmin = (req, res, next) => { }

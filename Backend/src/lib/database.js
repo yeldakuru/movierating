@@ -1,10 +1,13 @@
-import mongoose from "mongoose";
-//	.env dosyasındaki MONGODB_URI adresi ile MongoDB’ye bağlanmaya çalışır.
+import mongoose from 'mongoose';
+
 export const connectDB = async () => {
     try {
-        const conn = await mongoose.connect(process.env.MONGODB_URI);
-        console.log(`MongoDB connected: ${conn.connection.host}`)//	Bağlantı sağlandığında bağlı olunan sunucunun adresini log’lar.
-    } catch (error) {
-        console.log("MongoDB connection error:", error)
+
+        await mongoose.connect(process.env.MONGODB_URI);
+        console.log('Connected to MongoDB successfully');
     }
-};
+    catch (error) {
+        console.error('MongoDB connection failed:', error.message);
+        process.exit(1); // Exit the process with failure
+    }
+}

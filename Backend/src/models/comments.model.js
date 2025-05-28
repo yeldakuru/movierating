@@ -20,7 +20,7 @@ const commentSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    likes: [{
+    likes: [{//bir yorum birden fazla beğeni alabilir bu yüzden array şeklinde
         type: mongoose.Schema.Types.ObjectId,
         ref: "Likes",
     }],

@@ -13,15 +13,15 @@ import ratingRoutes from './routes/rate.route.js';
 
 
 
-dotenv.config();
-const app = express();
+dotenv.config();// .env dosyasını yüklemek için dotenv kullanıyoruz
+const app = express();// Express uygulamasını başlatıyoruz
 
 const PORT = process.env.PORT || 5001;
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));// CORS ayarları, frontend ile backend arasındaki istekleri kontrol etmek için kullanılır
 app.use(express.json());//json dosyası olarak açmak için
-app.use(cookieParser());//
-app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());// cookie'leri işlemek için
+app.use(express.urlencoded({ extended: true }));// URL-encoded verileri işlemek için
 
 
 app.use("/api/user", userRoutes);
@@ -32,7 +32,7 @@ app.use("/api/comments", commentRoutes);
 app.use("/api/likes", likeRoutes);
 app.use("/api/ratings", ratingRoutes);
 
-app.listen(PORT, () => {
+app.listen(PORT, () => {// Sunucuyu belirtilen portta dinlemeye başla
     console.log(`Server is running on port ${PORT}`);
     connectDB(); // MongoDB bağlantısını başlat
 });
