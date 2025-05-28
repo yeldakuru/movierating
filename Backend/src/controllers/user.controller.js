@@ -1,5 +1,7 @@
 import User from "../models/user.model.js";
 import { generateToken } from "../lib/token.js";
+import cloudinary from "../lib/cloudinary.js";
+
 
 export const register = async (req, res) => {
     const { username, email, password } = req.body;
@@ -103,24 +105,52 @@ export const checkUser = async (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
+    try {//ismi ve profil resmini güncellemek için
+        const { username, profilePic } = req.body;
+        const userId = req.user._id;
 
-    try {
-        const { username } = req.body; // Destructure profilePic from the request body
-        const userId = req.user._id; // Get the user ID from the request object
+        const updateFields = {};//onaylandığında güncellenecek obje 
 
-        if (!username) {
-            return res.status(400).json({ message: "Please provide a username" });
+        // Handle username
+        if (username) {
+            if (username.trim() === "") {
+                return res.status(400).json({ message: "Username cannot be empty" });
+            }
+            updateFields.username = username;
         }
 
-        const updatedUser = await User.findByIdAndUpdate(userId, { username }, { new: true }).select("-password"); // Update the user's profile picture in the database
+        // Handle profilePic
+        if (profilePic) {
+            if (typeof profilePic !== "string" || profilePic.trim() === "") {
+                return res
+                    .status(400)
+                    .json({ message: "Profile picture is invalid or empty" });
+            }
 
-        res.status(200).json({ message: "Username updated successfully", user: updatedUser });
+            const uploadResponse = await cloudinary.uploader.upload(profilePic, {
+                folder: "profile_pics",
+            });
+            updateFields.profilePic = uploadResponse.secure_url;
+        }
 
+        // If nothing is provided
+        if (Object.keys(updateFields).length === 0) {
+            return res
+                .status(400)
+                .json({ message: "No data provided for update" });
+        }
+
+        // Perform the update
+        const updatedUser = await User.findByIdAndUpdate(userId, updateFields, {
+            new: true,
+        }).select("-password");
+
+        res.status(200).json({
+            message: "Profile updated successfully",
+            user: updatedUser,
+        });
     } catch (error) {
-
-        res.status(500).json({ message: "Internal server error" }); // Send a 500 response if an error occurs
-        console.error("Error updating profile:", error); // Log the error to the console
-
+        console.error("Error updating profile:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
-}
-
+};

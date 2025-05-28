@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from 'cloudinary';
 
-import { config } from 'dotenv';
-config(); // Load environment variables from .env file
+import dotenv from 'dotenv';
+dotenv.config(); // Load environment variables from .env file
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME, // Cloud name from Cloudinary
