@@ -18,12 +18,7 @@ const tvshowSchema = new mongoose.Schema({
         type: [String],
         enum: ["comedy", "action", "horror", "romance", "documentary", "drama", "thriller", "sci-fi", "fantasy"],
         required: true,
-        validate: {
-            validate: {
-                validator: arr => arr.length > 0,
-                message: 'At least one genre is required.'
-            }
-        },
+
     },
     seasonNumber: {
         type: Number,
@@ -75,5 +70,5 @@ const tvshowSchema = new mongoose.Schema({
     },
 }, { timestamps: true }); // createdAt ve updatedAt alanlarını otomatik olarak ekler
 
-const tvShow = mongoose.model("TVShow", tvshowSchema);
-export default tvShow;
+const TvShow = mongoose.model("TVShow", tvshowSchema);
+export default TvShow;
