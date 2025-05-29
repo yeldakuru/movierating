@@ -10,10 +10,10 @@ export const fetchMovies = async (req, res) => {
 }
 
 export const fetchMovieById = async (req, res) => {
-    try {
-        const movie = await Movie.findById(req.params.id);// params.id urldeki id parametresini alır
-        if (!movie) return res.status(404).json({ message: "Movie not found" });// eğer film bulunamazsa 404 hatası döner
-        res.status(200).json(movie);
+    try {//populate("comments")
+        const movies = await Movie.findById(req.params.id);// params.id urldeki id parametresini alır
+        if (!movies) return res.status(404).json({ message: "Movie not found" });// eğer film bulunamazsa 404 hatası döner
+        res.status(200).json(movies);
     } catch (error) {
         res.status(500).json({ message: "Error fetching movie" });
     }
