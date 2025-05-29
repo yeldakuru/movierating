@@ -33,7 +33,7 @@ export const createMovie = async (req, res) => {
             title,
             description,
             genre,
-
+            photo,
             releaseDate,
             duration,
             trailerLink,
@@ -44,7 +44,7 @@ export const createMovie = async (req, res) => {
         // Access the uploaded file (e.g. from multer middleware)
         const imageFile = req.file;
 
-        const photo = imageFile ? await uploadToCloudinary(imageFile.path) : null;
+        // const photo = imageFile ? await uploadToCloudinary(imageFile.path) : null;
 
         const newMovie = new Movie({
             title,
