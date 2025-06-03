@@ -1,39 +1,25 @@
-
 import Movie from '../models/movie.model.js';
 import TvShow from '../models/tvshow.model.js';
 
-// Create Movie
-import cloudinary from "../lib/cloudinary.js";
-
 const uploadToCloudinary = async (file) => {
-
     try {
-
         const result = await cloudinary.uploader.upload(file.tempFilePath, {
-
             resource_type: "auto",
-
         });
-
         return result.secure_url;
-
     } catch (error) {
-
         console.log("Error in uploadToCloudinary", error);
-
         throw new Error("Error uploading to cloudinary");
-
     }
-
 };
 
+// Create Movie, to create without image, use the same endpoint but without the file upload add photo as a variable, comment out imageFile and photo
 export const createMovie = async (req, res) => {
     try {
         const {
             title,
             description,
             genre,
-            photo,
             releaseDate,
             duration,
             trailerLink,
@@ -44,7 +30,7 @@ export const createMovie = async (req, res) => {
         // Access the uploaded file (e.g. from multer middleware)
         const imageFile = req.file;
 
-        // const photo = imageFile ? await uploadToCloudinary(imageFile.path) : null;
+        const photo = imageFile ? await uploadToCloudinary(imageFile.path) : null;
 
         const newMovie = new Movie({
             title,
@@ -76,6 +62,7 @@ export const updateMovie = async (req, res) => {
     }
 };
 
+// Delete Movie
 export const deleteMovie = async (req, res) => {
     try {
         const deletedMovie = await Movie.findByIdAndDelete(req.params.id);
@@ -86,13 +73,13 @@ export const deleteMovie = async (req, res) => {
     }
 };
 
+// Create TV Show
 export const createTvShow = async (req, res) => {
     try {
         const {
             title,
             description,
             genre,
-            // This will be the Cloudinary URL after upload
             seasonNumber,
             episodeNumber,
             releaseDate,
@@ -127,6 +114,7 @@ export const createTvShow = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
 // Update TV Show
 export const updateTvShow = async (req, res) => {
     try {

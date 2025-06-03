@@ -8,33 +8,20 @@ import adminRoutes from './routes/admin.route.js';
 import movieRoutes from './routes/movies.route.js';
 import tvShowRoutes from './routes/tvshows.route.js';
 import commentRoutes from './routes/comment.route.js';
-import likeRoutes from './routes/like.route.js';
 import ratingRoutes from './routes/rate.route.js';
 import path from 'path';
 import fileUpload from 'express-fileupload'; // dosya yükleme işlemleri için kullanılır
 
-
-dotenv.config();// .env dosyasını yüklemek için dotenv kullanıyoruz
-const __dirname = path.resolve(); // __dirname yerine path.resolve kullanarak dizin yolunu alıyoruz, bu sayede dosya yollarını doğru şekilde oluşturabiliyoruz
-
-const app = express();// Express uygulamasını başlatıyoruz
+dotenv.config();
+const app = express();
 
 const PORT = process.env.PORT || 5001;
+const __dirname = path.resolve(); // Get the current directory name
 
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));// CORS ayarları, frontend ile backend arasındaki istekleri kontrol etmek için kullanılır
-app.use(express.json());//json dosyası olarak açmak için
-app.use(cookieParser());// cookie'leri işlemek için
-app.use(express.urlencoded({ extended: true }));// URL-encoded verileri işlemek için
-
-
-app.use("/api/user", userRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/movies", movieRoutes);
-app.use("/api/tvshows", tvShowRoutes);
-app.use("/api/comments", commentRoutes);
-app.use("/api/likes", likeRoutes);
-app.use("/api/ratings", ratingRoutes);
-app
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(express.json()); // Parse JSON bodies 
+app.use(cookieParser()); // Parse cookies for the use of token authentication
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies for
 
 app.use(
     fileUpload({
@@ -45,7 +32,15 @@ app.use(
             fileSize: 10 * 1024 * 1024, // 10MB  max file size
         },
     })
-);
+); // Enable file upload handling
+
+
+app.use("/api/user", userRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/movies", movieRoutes);
+app.use("/api/tvshows", tvShowRoutes);
+app.use("/api/comments", commentRoutes);
+app.use("/api/ratings", ratingRoutes);
 
 
 

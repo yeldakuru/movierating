@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/user.model.js';
-
+import Comment from '../models/comments.model.js';
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -42,3 +42,20 @@ export const userLoggedIn = async (req, res, next) => {
     }
 };
 
+export const isCommentOwnerOrAdmin = async (req, res, next) => {
+    try {
+        const comment = await Comment.findById(req.params.id);
+        if (!comment) return res.status(404).json({ message: 'Comment not found' });
+
+        if (
+            comment.userId.toString() === req.user._id.toString() ||
+            req.user.email === process.env.ADMIN_EMAIL
+        ) {
+            next();
+        } else {
+            res.status(403).json({ message: 'Unauthorized' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
