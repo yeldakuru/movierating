@@ -12,7 +12,7 @@ export const createComment = async (req, res) => {
         }
 
         const newComment = new Comment({
-            userId: req.user._id,
+            userId: req.user._id,//kullanıcı idsini al 
             movieId: movieId || undefined,
             tvShowId: tvShowId || undefined,
             commentText,
@@ -21,9 +21,9 @@ export const createComment = async (req, res) => {
         await newComment.save();
 
         if (movieId) {
-            await Movie.findByIdAndUpdate(movieId, { $push: { comments: newComment._id } });
+            await Movie.findByIdAndUpdate(movieId, { $push: { comments: newComment._id } });//bu filmin idsini alır ve yeni yorumu bu filme ekler(movie deki comments arrayine ekler)
         } else if (tvShowId) {
-            await TvShow.findByIdAndUpdate(tvShowId, { $push: { comments: newComment._id } });
+            await TvShow.findByIdAndUpdate(tvShowId, { $push: { comments: newComment._id } });//push ekle ,pull çıkar
         }
 
         res.status(201).json(newComment);
@@ -56,7 +56,7 @@ export const deleteComment = async (req, res) => {
             await TvShow.findByIdAndUpdate(comment.tvShowId, { $pull: { comments: comment._id } });
         }
 
-        await Likes.deleteMany({ commentId: comment._id });
+        await Likes.deleteMany({ commentId: comment._id });// tüm beğenileri sil
         await comment.deleteOne();
         res.status(200).json({ message: 'Comment deleted successfully' });
     } catch (error) {
