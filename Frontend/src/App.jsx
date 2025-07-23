@@ -7,6 +7,8 @@ import TvShowPage from './pages/TvShowPage'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import ProfilePage from './pages/ProfilePage'
+import Navbar from './components/Navbar'
+import Footer from './components/Footer'
 
 
 function App() {
@@ -14,7 +16,7 @@ function App() {
 
   return (
     <>
-
+      <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/movie" element={<MoviePage />} />
@@ -25,7 +27,7 @@ function App() {
 
       </Routes>
 
-
+      <Footer />
     </>
   )
 }
