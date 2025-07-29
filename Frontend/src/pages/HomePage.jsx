@@ -2,13 +2,16 @@
 import { useEffect } from 'react';
 import useMovieStore from '../store/useMovieStore.js';
 import MovieCard from '../components/MovieCard.jsx';
-
+import useTvShowStore from '../store/useTvShowStore.js';
+import TvShowCard from '../components/TvShowCard.jsx';
 const HomePage = () => {
     const { movies, fetchMovies, loading, error } = useMovieStore();
+    const { tvShows, fetchTvShows, tvLoading, tverror } = useTvShowStore();
 
     useEffect(() => {
         fetchMovies();
-    }, [fetchMovies]);
+        fetchTvShows();
+    }, [fetchMovies, fetchTvShows]);
 
     return (
         <div className='mt-15'>
@@ -70,8 +73,19 @@ const HomePage = () => {
                     ))}
                 </div>
             </div>
-        </div>
 
+            {/* tvshow Cards */}
+            <div className="p-4 space-y-4">
+                <h1 className="text-3xl font-bold">Hot TvShows</h1>
+                {tvLoading && <p>Loading...</p>}
+                {tverror && <p className="text-red-500">{tverror}</p>}
+                <div className="flex flex-wrap gap-6">
+                    {tvShows.map((tvShow) => (
+                        <TvShowCard key={tvShow._id} a={tvShow}></TvShowCard>
+                    ))}
+                </div>
+            </div>
+        </div>
     );
 };
 
