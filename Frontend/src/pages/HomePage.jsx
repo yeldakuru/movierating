@@ -77,7 +77,7 @@ const HomePage = () => {
             {/* tvshow Cards */}
             <div className="p-4 space-y-4">
                 <h1 className="text-3xl font-bold">Hot TvShows</h1>
-                {tvLoading && <p>Loading...</p>}
+                {tvLoading && <p>Loading...</p>}a,
                 {tverror && <p className="text-red-500">{tverror}</p>}
                 <div className="flex flex-wrap gap-6">
                     {tvShows.map((tvShow) => (
