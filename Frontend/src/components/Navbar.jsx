@@ -1,20 +1,46 @@
 import { Link } from "react-router-dom";
-import { LogOut, MessageSquare, User, LogIn, Tv, Clapperboard, Sun, Moon, Search } from "lucide-react";
+import {
+    LogOut,
+    MessageSquare,
+    User,
+    LogIn,
+    Tv,
+    Clapperboard,
+    Sun,
+    Moon,
+    Search
+} from "lucide-react";
 import { useUserStore } from '../store/useUserStore.js';
+import useMovieStore from "../store/useMovieStore.js";
+import useTvShowStore from "../store/useTvShowStore.js";
 import { useState } from "react";
-const Navbar = () => {
 
+const Navbar = () => {
     const { logout, authUser } = useUserStore();
+    const { movies } = useMovieStore();
+    const { tvShows } = useTvShowStore();
 
     const [lightMode, setLightMode] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
 
     const toggleLightMode = () => {
         setLightMode(!lightMode);
     };
 
+    const filteredResults = [
+        ...movies,
+        ...tvShows
+    ].filter(item => {
+        const name = item.title || item.name || "";
+        return name.toLowerCase().startsWith(searchTerm.toLowerCase());
+    });
+    const capitalize = (str) => {
+        if (!str) return "";
+        return str.charAt(0).toUpperCase() + str.slice(1);
+    };
     return (
         <header className="border-b border-base-300 fixed w-full top-0 z-40 backdrop-blur-lg bg-base-100/80">
-            <div className="container mx-auto px-4 h-16">
+            <div className="container mx-auto px-4 h-16 relative">
                 <div className="flex items-center justify-between h-full">
 
                     {/* left side */}
@@ -28,24 +54,61 @@ const Navbar = () => {
                     </div>
 
                     {/* middle side */}
-                    <form className="flex-grow mx-4 max-w-md w-full hidden sm:flex">
-                        <label className="input input-bordered flex items-center gap-2 w-full">
-                            <Search className="w-4 h-4 opacity-70" />
+                    <div className="flex-grow mx-4 max-w-md w-full hidden sm:flex relative">
+                        <label className="input input-bordered flex items-center gap-2 w-full shadow-md rounded-full px-4 py-2 bg-white dark:bg-gray-800">
+                            <Search className="w-4 h-4 opacity-60 text-gray-500" />
                             <input
                                 type="text"
-                                className="grow"
-                                placeholder="Search movies or shows..."
-                                value=""
+                                className="grow bg-transparent focus:outline-none text-sm"
+                                placeholder="Search for movies or shows..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                             />
                         </label>
-                    </form>
+
+                        {searchTerm && (
+                            <div className="absolute top-full mt-2 w-full bg-white dark:bg-gray-900 shadow-xl rounded-xl z-50 max-h-[400px] overflow-y-auto border border-gray-300 dark:border-gray-700">
+                                {filteredResults.length > 0 ? (
+                                    filteredResults.map((item) => (
+                                        <Link
+                                            key={item._id}
+                                            to={item.title ? `/movies/${item._id}` : `/tvshows/${item._id}`}
+                                            className="flex items-center gap-4 p-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                                            onClick={() => setSearchTerm("")}
+                                        >
+                                            <img
+                                                src={item.photo || item.poster}
+                                                alt={item.title || item.name}
+                                                className="w-12 h-16 object-cover rounded-md shadow-sm"
+                                            />
+                                            <div>
+                                                <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                                                    {item.title || item.name}
+                                                </h4>
+                                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                    {capitalize(item.genre && item.genre.length > 0 ? item.genre[0] : "Unknown")} -{" "}
+                                                    {item.releaseDate
+                                                        ? new Date(item.releaseDate).getFullYear()
+                                                        : item.seasonNumber || "Unknown Year"}
+                                                </p>
+                                            </div>
+                                        </Link>
+                                    ))
+                                ) : (
+                                    <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
+                                        No results found for "<strong>{searchTerm}</strong>"
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+
 
                     {/* right side */}
-
                     <div className="flex items-center gap-2">
-
                         {authUser && authUser.fullName && (
-                            <div className="hidden sm:flex items-center px-3 py-1 rounded-lg text-sm font-medium"> {/* bg-base-200 to add background */}
+                            <div className="hidden sm:flex items-center px-3 py-1 rounded-lg text-sm font-medium">
                                 Welcome {authUser.fullName}
                             </div>
                         )}
@@ -67,7 +130,6 @@ const Navbar = () => {
                             </Link>
                         )}
 
-
                         {lightMode ? (
                             <Sun onClick={toggleLightMode} />
                         ) : (
@@ -85,15 +147,13 @@ const Navbar = () => {
                                     <LogOut className="size-5" />
                                     <span className="hidden sm:inline">Logout</span>
                                 </button>
-
                             </>
                         )}
                     </div>
                 </div>
             </div>
         </header>
+    );
+};
 
-    )
-}
-
-export default Navbar
+export default Navbar;
