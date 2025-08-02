@@ -6,46 +6,45 @@ import {
     LogIn,
     Tv,
     Clapperboard,
+    Droplet,
     Sun,
     Moon,
     Search
 } from "lucide-react";
-import { useUserStore } from '../store/useUserStore.js';
+import { useUserStore } from "../store/useUserStore.js";
 import useMovieStore from "../store/useMovieStore.js";
 import useTvShowStore from "../store/useTvShowStore.js";
 import { useState } from "react";
+import { useTheme } from '../store/useThemeStore.jsx';
 
 const Navbar = () => {
     const { logout, authUser } = useUserStore();
     const { movies } = useMovieStore();
     const { tvShows } = useTvShowStore();
+    const { lightMode, toggleLightMode } = useTheme();
 
-    const [lightMode, setLightMode] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
-    const toggleLightMode = () => {
-        setLightMode(!lightMode);
-    };
-
-    const filteredResults = [
-        ...movies,
-        ...tvShows
-    ].filter(item => {
+    const filteredResults = [...movies, ...tvShows].filter((item) => {
         const name = item.title || item.name || "";
         return name.toLowerCase().startsWith(searchTerm.toLowerCase());
     });
+
     const capitalize = (str) => {
         if (!str) return "";
         return str.charAt(0).toUpperCase() + str.slice(1);
     };
+
     return (
         <header className="border-b border-base-300 fixed w-full top-0 z-40 backdrop-blur-lg bg-base-100/80">
             <div className="container mx-auto px-4 h-16 relative">
                 <div className="flex items-center justify-between h-full">
-
                     {/* left side */}
                     <div className="flex items-center gap-8">
-                        <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-all">
+                        <Link
+                            to="/"
+                            className="flex items-center gap-2.5 hover:opacity-80 transition-all"
+                        >
                             <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center">
                                 <MessageSquare className="w-5 h-5 text-primary" />
                             </div>
@@ -77,7 +76,7 @@ const Navbar = () => {
                                             onClick={() => setSearchTerm("")}
                                         >
                                             <img
-                                                src={item.photo || item.poster}
+                                                src={item.photo}
                                                 alt={item.title || item.name}
                                                 className="w-12 h-16 object-cover rounded-md shadow-sm"
                                             />
@@ -86,7 +85,7 @@ const Navbar = () => {
                                                     {item.title || item.name}
                                                 </h4>
                                                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                    {capitalize(item.genre && item.genre.length > 0 ? item.genre[0] : "Unknown")} -{" "}
+                                                    {capitalize(item.genre?.[0]) || "Unknown"} -{" "}
                                                     {item.releaseDate
                                                         ? new Date(item.releaseDate).getFullYear()
                                                         : item.seasonNumber || "Unknown Year"}
@@ -103,8 +102,6 @@ const Navbar = () => {
                         )}
                     </div>
 
-
-
                     {/* right side */}
                     <div className="flex items-center gap-2">
                         {authUser && authUser.fullName && (
@@ -113,37 +110,76 @@ const Navbar = () => {
                             </div>
                         )}
 
-                        <Link to={"/movies"} className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}>
+                        <Link
+                            to={"/movies"}
+                            className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}
+                        >
                             <Clapperboard className="w-4 h-4" />
                             <span className="hidden sm:inline">Movies</span>
                         </Link>
 
-                        <Link to={"/tvshows"} className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}>
+                        <Link
+                            to={"/tvshows"}
+                            className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}
+                        >
                             <Tv className="w-4 h-4" />
                             <span className="hidden sm:inline">TvShows</span>
                         </Link>
 
+                        <Link
+                            to={"/themes"}
+                            className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}
+                        >
+                            <Droplet className="w-4 h-4" />
+                            <span className="hidden sm:inline">Themes</span>
+                        </Link>
+
                         {!authUser && (
-                            <Link to={"/login"} className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}>
+                            <Link
+                                to={"/login"}
+                                className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}
+                            >
                                 <LogIn className="w-4 h-4" />
                                 <span className="hidden sm:inline">Login</span>
                             </Link>
                         )}
 
                         {lightMode ? (
-                            <Sun onClick={toggleLightMode} />
+                            <Sun
+                                onClick={toggleLightMode}
+                                className="cursor-pointer w-5 h-5 text-yellow-500"
+                            />
                         ) : (
-                            <Moon onClick={toggleLightMode} />
+                            <Moon
+                                onClick={toggleLightMode}
+                                className="cursor-pointer w-5 h-5 text-gray-700"
+                            />
                         )}
 
                         {authUser && (
                             <>
-                                <Link to={"/profile"} className={`btn btn-sm gap-2 hover:opacity-80`}>
+                                <Link
+                                    to={"/profile"}
+                                    className={`btn btn-sm gap-2 hover:opacity-80`}
+                                >
                                     <User className="size-5" />
                                     <span className="hidden sm:inline">Profile</span>
                                 </Link>
 
-                                <button className="flex gap-2 items-center hover:opacity-80" onClick={logout}>
+                                {authUser.email === "yelda123@hotmail.com" && (
+                                    <Link
+                                        to={"/admin"}
+                                        className={`btn btn-sm gap-2 hover:opacity-80`}
+                                    >
+                                        <User className="size-5" />
+                                        <span className="hidden sm:inline">Admin</span>
+                                    </Link>
+                                )}
+
+                                <button
+                                    className="flex gap-2 items-center hover:opacity-80"
+                                    onClick={logout}
+                                >
                                     <LogOut className="size-5" />
                                     <span className="hidden sm:inline">Logout</span>
                                 </button>

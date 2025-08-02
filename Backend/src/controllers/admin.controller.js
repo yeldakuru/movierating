@@ -19,6 +19,7 @@ export const createMovie = async (req, res) => {
         const {
             title,
             description,
+            photo,
             genre,
             releaseDate,
             duration,
@@ -28,9 +29,9 @@ export const createMovie = async (req, res) => {
         } = req.body;
 
         // Access the uploaded file (e.g. from multer middleware)
-        const imageFile = req.file;
+        // const imageFile = req.file;
 
-        const photo = imageFile ? await uploadToCloudinary(imageFile.path) : null;
+        // const photo = imageFile ? await uploadToCloudinary(imageFile.path) : null;
 
         const newMovie = new Movie({
             title,
@@ -79,6 +80,7 @@ export const createTvShow = async (req, res) => {
         const {
             title,
             description,
+            photo,
             genre,
             seasonNumber,
             episodeNumber,
@@ -90,9 +92,9 @@ export const createTvShow = async (req, res) => {
         } = req.body;
 
         // Access the uploaded file (e.g. from multer middleware)
-        const imageFile = req.file;
+        //const imageFile = req.file;
 
-        const photo = imageFile ? await uploadToCloudinary(imageFile.path) : null;
+        // const photo = imageFile ? await uploadToCloudinary(imageFile.path) : null;
 
         const newTvShow = new TvShow({
             title,

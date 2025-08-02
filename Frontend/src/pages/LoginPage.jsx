@@ -2,15 +2,23 @@ import { useState } from "react";
 import { useUserStore } from "../store/useUserStore.js";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({ email: "", password: "" });
     const { login, isLoggingIn } = useUserStore();
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        login(formData);
+        try {
+            await login(formData);
+            // Redirect to home or another page after successful login
+            navigate("/");
+        } catch (error) {
+            console.error("Error logging in:", error);
+        }
     };
 
     return (

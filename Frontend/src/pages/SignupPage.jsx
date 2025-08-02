@@ -5,6 +5,7 @@ import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare, User } from "lucide-re
 
 import { Link } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import { useNavigate } from 'react-router-dom';
 
 function SignupPage() {
 
@@ -16,6 +17,7 @@ function SignupPage() {
     }); // could add a confirm password field here
 
     const { signup, isSigningUp } = useUserStore();
+    const navigate = useNavigate();
 
     const validateForm = () => {
         if (!formData.username.trim()) return toast.error("Username is required");
@@ -32,7 +34,10 @@ function SignupPage() {
 
         const success = validateForm();
 
-        if (success === true) signup(formData);
+        if (success === true) {
+            signup(formData);
+            navigate("/");
+        }
     }
 
     return (

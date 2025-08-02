@@ -3,10 +3,12 @@ import { useParams } from "react-router-dom";
 import useMovieStore from "../store/useMovieStore";
 import { Star, ThumbsUp } from "lucide-react";
 import YouTubePlayer from "../components/youtubePlayer";
+import { useTheme } from "../store/useThemeStore";  // Burada import ettik
 
 export default function MoviePage() {
     const { id } = useParams();
     const { movie, getMovieById, loading, error } = useMovieStore();
+    const { lightMode } = useTheme();  // Light mode'u aldık
 
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState("");
@@ -74,10 +76,16 @@ export default function MoviePage() {
         : "Unknown";
 
     return (
-        <div className="relative min-h-screen bg-gradient-to-b from-zinc-900 to-black text-white">
+        <div
+            className="relative min-h-screen"
+            style={{
+                backgroundColor: lightMode ? "#ffffff" : undefined,
+                color: "white",
+            }}
+        >
             <div
                 className="absolute inset-0 -z-10 opacity-20 blur-md bg-cover bg-center"
-                style={{ backgroundImage: `url(${movie.photo})` }}
+                style={{ backgroundImage: `url(${movie.photo})`, display: lightMode ? "none" : "block" }}
                 aria-hidden="true"
             />
 
@@ -107,11 +115,11 @@ export default function MoviePage() {
                         <p className="text-gray-200 leading-relaxed">{movie.description}</p>
 
                         <h2 className="text-2xl font-semibold mb-4">Details</h2>
-                        {movie.director && <p><strong>Director:</strong> {movie.director}</p>}
-                        {movie.cast && <p><strong>Cast:</strong> {movie.cast.join(", ")}</p>}
+                        {movie.director && <p><strong>🎬 Director:</strong> {movie.director}</p>}
+                        {movie.cast && <p><strong>👥 Cast:</strong> {movie.cast.join(", ")}</p>}
                         {movie.genre && (
                             <p>
-                                <strong>Genres:</strong> {Array.isArray(movie.genre) ? movie.genre.join(", ") : movie.genre}
+                                <strong>🎭Genres:</strong> {Array.isArray(movie.genre) ? movie.genre.join(", ") : movie.genre}
                             </p>
                         )}
 
@@ -132,12 +140,12 @@ export default function MoviePage() {
                     {/* YouTube Videoları */}
                     {/* Detaylar alanı */}
                     <div className="md:col-span-6 space-y-6 bg-zinc-800 rounded-xl shadow-lg p-6">
-                        <h2 className="text-2xl font-semibold mb-4 text-white">Trailer</h2>
+                        <h2 className="text-2xl font-semibold mb-4 text-white">▶️ Trailer</h2>
 
                         {movie?.trailerLink ? (
                             <YouTubePlayer trailerLink={movie.trailerLink} />
                         ) : (
-                            <p className="text-gray-400">No trailer available.</p>
+                            <p className="text-gray-400"> No trailer available.</p>
                         )}
                     </div>
                 </section>
