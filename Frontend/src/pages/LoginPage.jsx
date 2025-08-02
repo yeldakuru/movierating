@@ -1,20 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useUserStore } from "../store/useUserStore.js";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader2, Lock, Mail, MessageSquare } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
     const [showPassword, setShowPassword] = useState(false);
-    const [formData, setFormData] = useState({ email: "", password: "" });
+
+    const [formData, setFormData] = useState({
+        email: "",
+        password: ""
+    });
+
+    const [rememberEmail, setRememberEmail] = useState(false); // ✅ checkbox state
+
     const { login, isLoggingIn } = useUserStore();
     const navigate = useNavigate();
+
+    // ✅ On component mount, check localStorage for saved email
+    useEffect(() => {
+        const savedEmail = localStorage.getItem("rememberedEmail");
+        if (savedEmail) {
+            setFormData(prev => ({ ...prev, email: savedEmail }));
+            setRememberEmail(true);
+        }
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             await login(formData);
-            // Redirect to home or another page after successful login
+
+            // ✅ Store email if "remember" is checked, otherwise clear it
+            if (rememberEmail) {
+                localStorage.setItem("rememberedEmail", formData.email);
+            } else {
+                localStorage.removeItem("rememberedEmail");
+            }
+
             navigate("/");
         } catch (error) {
             console.error("Error logging in:", error);
@@ -49,7 +71,9 @@ const LoginPage = () => {
                                 className="input input-bordered w-full pl-10"
                                 placeholder="you@example.com"
                                 value={formData.email}
-                                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, email: e.target.value })
+                                }
                                 required
                             />
                         </div>
@@ -67,7 +91,9 @@ const LoginPage = () => {
                                 className="input input-bordered w-full pl-10 pr-10"
                                 placeholder="••••••••"
                                 value={formData.password}
-                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                onChange={(e) =>
+                                    setFormData({ ...formData, password: e.target.value })
+                                }
                                 required
                             />
                             <button
@@ -84,8 +110,25 @@ const LoginPage = () => {
                         </div>
                     </div>
 
+                    {/* Remember Email Checkbox */}
+                    <div className="form-control">
+                        <label className="cursor-pointer label gap-3">
+                            <input
+                                type="checkbox"
+                                className="checkbox"
+                                checked={rememberEmail}
+                                onChange={() => setRememberEmail(!rememberEmail)}
+                            />
+                            <span className="label-text">Remember my email</span>
+                        </label>
+                    </div>
+
                     {/* Submit */}
-                    <button type="submit" className="btn btn-primary w-full" disabled={isLoggingIn}>
+                    <button
+                        type="submit"
+                        className="btn btn-primary w-full"
+                        disabled={isLoggingIn}
+                    >
                         {isLoggingIn ? (
                             <>
                                 <Loader2 className="h-5 w-5 animate-spin" />

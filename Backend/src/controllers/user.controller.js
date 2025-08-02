@@ -93,10 +93,12 @@ export const checkUser = async (req, res) => {
         }
 
         res.status(200).json({
-            _id: req.user._id,
-            username: req.user.username,
-            email: req.user.email,
-            profilePic: req.user.profilePic,
+            user: {
+                _id: req.user._id,
+                username: req.user.username,
+                email: req.user.email,
+                profilePic: req.user.profilePic,
+            }
         });
     } catch (error) {
         console.error("Error in checkUser controller:", error);

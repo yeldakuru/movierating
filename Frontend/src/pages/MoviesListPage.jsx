@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import useMovieStore from '../store/useMovieStore';
 import ListCard from '../components/ListCard';
+import { Loader } from 'lucide-react';
 
 const MoviesListPage = () => {
     const { movies, fetchMovies, loading, error } = useMovieStore();
@@ -9,7 +10,12 @@ const MoviesListPage = () => {
         fetchMovies();
     }, [fetchMovies]);
 
-    if (loading) return <div className="text-center mt-10">Loading...</div>;
+    if (loading) return (
+        <div className="flex items-center justify-center h-screen">
+            <Loader className="size-15 animate-spin" />
+        </div>
+    );
+
     if (error) return <div className="text-center mt-10 text-red-500">{error}</div>;
 
     return (

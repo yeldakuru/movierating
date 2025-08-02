@@ -67,33 +67,29 @@ const Navbar = () => {
 
                         {searchTerm && (
                             <div className="absolute top-full mt-2 w-full bg-white dark:bg-gray-900 shadow-xl rounded-xl z-50 max-h-[400px] overflow-y-auto border border-gray-300 dark:border-gray-700">
-                                {filteredResults.length > 0 ? (
-                                    filteredResults.map((item) => (
-                                        <Link
-                                            key={item._id}
-                                            to={item.title ? `/movies/${item._id}` : `/tvshows/${item._id}`}
-                                            className="flex items-center gap-4 p-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
-                                            onClick={() => setSearchTerm("")}
-                                        >
-                                            <img
-                                                src={item.photo}
-                                                alt={item.title || item.name}
-                                                className="w-12 h-16 object-cover rounded-md shadow-sm"
-                                            />
-                                            <div>
-                                                <h4 className="font-medium text-gray-900 dark:text-gray-100">
-                                                    {item.title || item.name}
-                                                </h4>
-                                                <p className="text-xs text-gray-500 dark:text-gray-400">
-                                                    {capitalize(item.genre?.[0]) || "Unknown"} -{" "}
-                                                    {item.releaseDate
-                                                        ? new Date(item.releaseDate).getFullYear()
-                                                        : item.seasonNumber || "Unknown Year"}
-                                                </p>
-                                            </div>
-                                        </Link>
-                                    ))
-                                ) : (
+                                {filteredResults.length > 0 ? (filteredResults.map((item) => (
+                                    <Link
+                                        key={item._id}
+                                        to={item.title && item.duration ? `/movie/${item._id}` : `/tvshow/${item._id}`}
+                                        className="flex items-center gap-4 p-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+                                        onClick={() => setSearchTerm("")}
+                                    >
+                                        <img
+                                            src={item.photo}
+                                            alt={item.title || item.name}
+                                            className="w-12 h-16 object-cover rounded-md shadow-sm"
+                                        />
+                                        <div>
+                                            <h4 className="font-medium text-gray-900 dark:text-gray-100">
+                                                {item.title || item.name}
+                                            </h4>
+                                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                                                {capitalize(item.genre?.[0]) || "Unknown"} -{" "}
+                                                {item.releaseDate ? new Date(item.releaseDate).getFullYear() : item.seasonNumber || "Unknown Year"}
+                                            </p>
+                                        </div>
+                                    </Link>
+                                ))) : (
                                     <div className="p-4 text-sm text-gray-500 dark:text-gray-400">
                                         No results found for "<strong>{searchTerm}</strong>"
                                     </div>
@@ -104,85 +100,54 @@ const Navbar = () => {
 
                     {/* right side */}
                     <div className="flex items-center gap-2">
-                        {authUser && authUser.fullName && (
-                            <div className="hidden sm:flex items-center px-3 py-1 rounded-lg text-sm font-medium">
-                                Welcome {authUser.fullName}
+
+                        {authUser && authUser.username && (
+                            <div className="hidden sm:flex items-center px-3 py-1 rounded-lg text-sm font-medium"> {/* bg-base-200 to add background */}
+                                Welcome {authUser.username} !
                             </div>
                         )}
 
-                        <Link
-                            to={"/movies"}
-                            className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}
-                        >
+                        <Link to={"/movies"} className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}>
                             <Clapperboard className="w-4 h-4" />
                             <span className="hidden sm:inline">Movies</span>
                         </Link>
 
-                        <Link
-                            to={"/tvshows"}
-                            className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}
-                        >
+                        <Link to={"/tvshows"} className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}>
                             <Tv className="w-4 h-4" />
                             <span className="hidden sm:inline">TvShows</span>
                         </Link>
 
-                        <Link
-                            to={"/themes"}
-                            className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}
-                        >
+                        <Link to={"/themes"} className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}>
                             <Droplet className="w-4 h-4" />
                             <span className="hidden sm:inline">Themes</span>
                         </Link>
 
                         {!authUser && (
-                            <Link
-                                to={"/login"}
-                                className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}
-                            >
+                            <Link to={"/login"} className={`btn btn-sm gap-2 transition-colors hover:opacity-80`}>
                                 <LogIn className="w-4 h-4" />
                                 <span className="hidden sm:inline">Login</span>
                             </Link>
                         )}
 
-                        {lightMode ? (
-                            <Sun
-                                onClick={toggleLightMode}
-                                className="cursor-pointer w-5 h-5 text-yellow-500"
-                            />
-                        ) : (
-                            <Moon
-                                onClick={toggleLightMode}
-                                className="cursor-pointer w-5 h-5 text-gray-700"
-                            />
-                        )}
-
                         {authUser && (
                             <>
-                                <Link
-                                    to={"/profile"}
-                                    className={`btn btn-sm gap-2 hover:opacity-80`}
-                                >
+                                <Link to={"/profile"} className={`btn btn-sm gap-2 hover:opacity-80`}>
                                     <User className="size-5" />
                                     <span className="hidden sm:inline">Profile</span>
                                 </Link>
 
                                 {authUser.email === "yelda123@hotmail.com" && (
-                                    <Link
-                                        to={"/admin"}
-                                        className={`btn btn-sm gap-2 hover:opacity-80`}
-                                    >
+                                    <Link to={"/admin"} className={`btn btn-sm gap-2 hover:opacity-80`}>
                                         <User className="size-5" />
                                         <span className="hidden sm:inline">Admin</span>
                                     </Link>
                                 )}
 
-                                <button
-                                    className="flex gap-2 items-center hover:opacity-80"
-                                    onClick={logout}
-                                >
+                                <button className="flex gap-2 items-center hover:opacity-80" onClick={logout}>
                                     <LogOut className="size-5" />
                                     <span className="hidden sm:inline">Logout</span>
                                 </button>
+
                             </>
                         )}
                     </div>
