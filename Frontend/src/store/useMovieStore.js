@@ -4,6 +4,7 @@ import { axiosInstance } from '../lib/axios.js';
 const useMovieStore = create((set) => ({
     movies: [],
     movie: null,
+    hotmovies: [],
     loading: false,
     error: null,
 
@@ -25,6 +26,16 @@ const useMovieStore = create((set) => ({
         } catch (err) {
             console.error('Failed to fetch movie:', err);
             set({ error: 'Failed to fetch movie', loading: false });
+        }
+    },
+    fetchHotMovies: async () => {
+        set({ loading: true, error: null });
+        try {
+            const res = await axiosInstance.get('/movies/hotmovies'); // http://localhost:5000/api/movies/hotmovies
+            set({ hotmovies: res.data, loading: false });
+        } catch (err) {
+            console.error('Failed to fetch hot movies:', err);
+            set({ error: 'Failed to fetch hot movies', loading: false });
         }
     },
 }));

@@ -1,12 +1,14 @@
 // 📁 src/pages/HomePage.jsx
 import { useEffect } from 'react';
 import useMovieStore from '../store/useMovieStore.js';
+import useTvShowStore from '../store/useTvShowStore.js';
 import MovieCard from '../components/MovieCard.jsx';
 import TvShowCard from '../components/TvShowCard.jsx';
 import { useNavigate } from 'react-router-dom';
 
 const HomePage = () => {
-    const { hotmovies, fetchHotMovies, loading, error, hottvshows, fetchHotTvShows } = useMovieStore();
+    const { hotmovies, fetchHotMovies, loading, error } = useMovieStore();
+    const { hottvshows, fetchHotTvShows, tvLoading, tverror } = useTvShowStore();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -70,11 +72,11 @@ const HomePage = () => {
             {/* TvShowCard Cards */}
             <div className="p-4 space-y-4 flex flex-col items-center">
                 <h1 className="text-3xl font-bold">Hot TvShows</h1>
-                {loading && <p>Loading...</p>}
-                {error && <p className="text-red-500">{error}</p>}
+                {tvLoading && <p>Loading...</p>}
+                {tverror && <p className="text-red-500">{error}</p>}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {hottvshows.map((tvshow) => (
-                        <TvShowCard key={tvshow._id} tvshow={tvshow} />
+                    {hottvshows.map((tvShow) => (
+                        <TvShowCard key={tvShow._id} a={tvShow} />
                     ))}
                 </div>
             </div>

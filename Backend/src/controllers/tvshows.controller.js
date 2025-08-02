@@ -18,3 +18,12 @@ export const fetchTvShowById = async (req, res) => {
         res.status(500).json({ message: "Error fetching TV show" });
     }
 };
+export const fetchHotTvShows = async (req, res) => {
+    try {
+        const hotTvShows = await TvShow.find().sort({ averageRating: -1 }) // Sort by averageRating descending
+            .limit(6);   // Fetch TV shows with average rating greater than 5
+        res.json(hotTvShows);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

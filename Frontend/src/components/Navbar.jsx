@@ -15,13 +15,13 @@ import { useUserStore } from "../store/useUserStore.js";
 import useMovieStore from "../store/useMovieStore.js";
 import useTvShowStore from "../store/useTvShowStore.js";
 import { useState } from "react";
-import { useTheme } from '../store/useThemeStore.jsx';
+import { useThemeStore } from '../store/useThemeStore';
 
 const Navbar = () => {
     const { logout, authUser } = useUserStore();
     const { movies } = useMovieStore();
     const { tvShows } = useTvShowStore();
-    const { lightMode, toggleLightMode } = useTheme();
+    const { lightMode, toggleLightMode } = useThemeStore();
 
     const [searchTerm, setSearchTerm] = useState("");
 

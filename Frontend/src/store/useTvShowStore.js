@@ -4,6 +4,7 @@ import { axiosInstance } from '../lib/axios.js';
 const useTvShowStore = create((set) => ({
     tvShows: [],
     tvShow: null,
+    hottvshows: [],
     tvLoading: false,
     tverror: null,
 
@@ -25,6 +26,16 @@ const useTvShowStore = create((set) => ({
         } catch (err) {
             console.error('Failed to fetch tv show:', err);
             set({ tverror: 'Failed to fetch tv show', tvLoading: false });
+        }
+    },
+    fetchHotTvShows: async () => {
+        set({ loading: true, error: null });
+        try {
+            const res = await axiosInstance.get('/tvshows/hottvshows'); // http://localhost:5000/api/tvshows/hottvshows
+            set({ hottvshows: res.data, loading: false });
+        } catch (err) {
+            console.error('Failed to fetch hot TV shows:', err);
+            set({ error: 'Failed to fetch hot TV shows', loading: false });
         }
     },
 }));
