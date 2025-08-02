@@ -1,18 +1,18 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import useMovieStore from '../store/useMovieStore.js'; // adjust the path if needed
+import useTvShowStore from '../store/useTvShowStore.js';
 import { Tv } from 'lucide-react';
 
 const TvShowPage = () => {
     const { id } = useParams();
-    const { tvShow, loading, error, fetchTvShowById } = useMovieStore();
+    const { tvShow, tvLoading, tverror, getTvShowById } = useTvShowStore();
 
     useEffect(() => {
-        fetchTvShowById(id);
-    }, [id, fetchTvShowById]);
+        getTvShowById(id);
+    }, [id, getTvShowById]);
 
-    if (loading) return <div className="mt-16">Loading...</div>;
-    if (error) return <div className="mt-16 text-red-500">{error}</div>;
+    if (tvLoading) return <div className="mt-16">Loading...</div>;
+    if (tverror) return <div className="mt-16 text-red-500">{tverror}</div>;
     if (!tvShow) return <div className="mt-16">Movie not found.</div>;
 
     return (

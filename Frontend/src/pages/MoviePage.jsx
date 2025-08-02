@@ -4,12 +4,12 @@ import useMovieStore from '../store/useMovieStore.js'; // adjust the path if nee
 
 const MoviePage = () => {
     const { id } = useParams();
-    const { movie, loading, error, fetchMovieById } = useMovieStore();
+    const { movie, loading, error, getMovieById } = useMovieStore();
 
 
     useEffect(() => {
-        fetchMovieById(id);
-    }, [id, fetchMovieById]);
+        getMovieById(id);
+    }, [id, getMovieById]);
 
     if (loading) return <div className="mt-16">Loading...</div>;
     if (error) return <div className="mt-16 text-red-500">{error}</div>;

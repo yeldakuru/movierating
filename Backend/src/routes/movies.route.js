@@ -3,7 +3,8 @@ import { fetchMovies, fetchMovieById, fetchHotMovies } from '../controllers/movi
 const router = express.Router();
 
 router.get("/", fetchMovies);
-router.get("/:id", fetchMovieById);
 router.get("/hotmovies", fetchHotMovies);
+router.get("/:id", fetchMovieById);
+
 
 export default router;
