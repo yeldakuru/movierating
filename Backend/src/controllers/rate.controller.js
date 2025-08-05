@@ -51,14 +51,35 @@ export const createRating = async (req, res) => {
 
         await newRating.save();
 
+        // Yeni ortalamayı hesapla
+        let ratings;
+        if (movieId) {
+            ratings = await Rate.find({ movieId });
+        } else if (tvShowId) {
+            ratings = await Rate.find({ tvShowId });
+        } else {
+            ratings = [];
+        }
+
+        const updatedAverage = ratings.length > 0
+            ? ratings.reduce((acc, r) => acc + r.rate, 0) / ratings.length
+            : 0;
+
+        // İlgili movie/tvShow belgelerini de güncelle
         if (movieId) await updateMovieRatingStats(movieId);
         if (tvShowId) await updateTvShowRatingStats(tvShowId);
 
-        res.status(201).json({ message: 'Rating created', rating: newRating });
+        res.status(201).json({
+            message: 'Rating created',
+            rating: newRating,
+            newAverageRating: Number(updatedAverage.toFixed(1))
+        });
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
+
 
 export const updateRating = async (req, res) => {
     try {
@@ -74,14 +95,36 @@ export const updateRating = async (req, res) => {
         rating.rate = rate;
         await rating.save();
 
+        // Oy güncellendikten sonra ortalamayı yeniden hesapla
+        let ratings;
+        if (rating.movieId) {
+            ratings = await Rate.find({ movieId: rating.movieId });
+        } else if (rating.tvShowId) {
+            ratings = await Rate.find({ tvShowId: rating.tvShowId });
+        } else {
+            ratings = [];
+        }
+
+        const updatedAverage = ratings.length > 0
+            ? ratings.reduce((acc, r) => acc + r.rate, 0) / ratings.length
+            : 0;
+
+        // İlgili movie/tvShow belgelerini de güncelle (isteğe bağlı)
         if (rating.movieId) await updateMovieRatingStats(rating.movieId);
         if (rating.tvShowId) await updateTvShowRatingStats(rating.tvShowId);
 
-        res.status(200).json({ message: 'Rating updated', rating });
+        res.status(200).json({
+            message: 'Rating updated',
+            rating,
+            newAverageRating: Number(updatedAverage.toFixed(1))
+        });
+
     } catch (error) {
+        console.error("Update rating error:", error);
         res.status(500).json({ message: error.message });
     }
 };
+
 
 export const deleteRating = async (req, res) => {
     try {

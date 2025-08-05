@@ -1,11 +1,10 @@
 // 📁 src/pages/HomePage.jsx
 import { useEffect } from 'react';
 import useMovieStore from '../store/useMovieStore.js';
-import useTvShowStore from '../store/useTvShowStore.js';
 import MovieCard from '../components/MovieCard.jsx';
 import TvShowCard from '../components/TvShowCard.jsx';
 import { useNavigate } from 'react-router-dom';
-
+import useTvShowStore from '../store/useTvShowStore.js';
 const HomePage = () => {
     const { hotmovies, fetchHotMovies, loading, error } = useMovieStore();
     const { hottvshows, fetchHotTvShows, tvLoading, tverror } = useTvShowStore();
@@ -22,7 +21,7 @@ const HomePage = () => {
 
             {/* Carousel - First 4 Movies */}
             <div className="flex justify-center mt-5">
-                <div className="carousel w-[90%] max-h-[400px] rounded-box overflow-hidden">
+                <div className="carousel w-[80%] max-h-[600px] min-h-[500px] rounded-box overflow-hidden">
                     {hotmovies.slice(0, 4).map((hottvshows, index) => (
                         <div
                             key={hottvshows._id}
@@ -36,7 +35,7 @@ const HomePage = () => {
                                 <img
                                     src={hottvshows.photo}
                                     alt={hottvshows.title}
-                                    className="w-full h-[400px] object-cover"
+                                    className="w-full h-[500px] object-cover"
                                 />
                                 <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xl font-bold p-4">
                                     {hottvshows.title}
