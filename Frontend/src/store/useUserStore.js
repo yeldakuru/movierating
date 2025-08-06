@@ -2,8 +2,9 @@ import { create } from 'zustand';
 import { axiosInstance } from '../lib/axios.js';
 import toast from 'react-hot-toast';
 
-export const useUserStore = create((set) => ({
+export const useUserStore = create((set, get) => ({
     authUser: null,
+    userComments: [],
     isSigningUp: false,
     isLoggingIn: false,
     isUpdatingProfile: false,
@@ -19,7 +20,6 @@ export const useUserStore = create((set) => ({
             set({ authUser: null, isCheckingAuth: false });
         }
     },
-
     signup: async (userData) => {
         set({ isSigningUp: true });
         try {
@@ -60,15 +60,29 @@ export const useUserStore = create((set) => ({
     updateProfile: async (userData) => {
         set({ isUpdatingProfile: true });
         try {
-            const response = await axiosInstance.put('/auth/update-profile', userData); // baseURL: 'http://localhost:5001/api' is the base
+            const response = await axiosInstance.put('/user/profileUpdate', userData); // baseURL: 'http://localhost:5001/api' is the base
             set({ authUser: response.data.user, isUpdatingProfile: false }); // response.data
-            toast.success('Profile updated successfully!');
+            toast.success('✅ Profile updated successfully!');
         } catch (error) {
-            console.error('Error updating profile:', error);
+            console.error('❌ Error updating profile:', error);
             toast.error('Error updating profile. Please try again.');
             set({ isUpdatingProfile: false });
         }
     },
+    fetchUserComments: async () => {
+        const { authUser } = get();
+        if (!authUser?._id) return;
 
+        set({ isFetchingComments: true });
+
+        try {
+            const res = await axiosInstance.get(`/comments/user/${authUser._id}`);
+            set({ userComments: res.data, isFetchingComments: false });
+        } catch (error) {
+            console.error('❌ Error fetching user comments:', error);
+            toast.error('Failed to fetch your comments.');
+            set({ isFetchingComments: false });
+        }
+    },
 
 }));

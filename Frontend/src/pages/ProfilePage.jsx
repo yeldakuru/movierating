@@ -21,7 +21,7 @@ const ProfilePage = () => {
         if (authUser?._id) {
             fetchUserComments();
         }
-    }, [authUser]);
+    }, [authUser, fetchUserComments]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
