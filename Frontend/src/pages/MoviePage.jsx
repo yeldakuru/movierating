@@ -3,9 +3,10 @@ import { useParams } from "react-router-dom";
 import useMovieStore from "../store/useMovieStore";
 import { useUserStore } from "../store/useUserStore";
 import useCommentStore from "../store/useCommentStore";
-import { Star, ThumbsUp, Loader, Pen, Trash2 } from "lucide-react";
+import { Star, ThumbsUp, Loader } from "lucide-react";
 import YouTube from "react-youtube";
 import toast from "react-hot-toast";
+import { Pen, Trash2 } from "lucide-react";
 
 const MoviePage = () => {
     const { id } = useParams();
@@ -18,11 +19,10 @@ const MoviePage = () => {
         toggleLike,
         updateComment,
         deleteComment,
-        loadingComments,
+        loadingComments: commentLoading,
     } = useCommentStore();
 
     const [rating, setRating] = useState(0);
-    const [averageRating, setAverageRating] = useState(0);
     const [commentText, setCommentText] = useState("");
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editCommentText, setEditCommentText] = useState("");
@@ -35,38 +35,13 @@ const MoviePage = () => {
         fetch();
     }, [id, getMovieById, fetchCommentsByMovie]);
 
-    // movie güncellendiğinde rating ve averageRating set edelim
-    useEffect(() => {
-        if (movie) {
-            setRating(movie.userRating || 0);
-            setAverageRating(movie.averageRating || 0);
-            console.log("Movie updated:", movie);
-            console.log("Average rating:", movie.averageRating);
-        }
-    }, [movie]);
-
-    const handleRating = async (value) => {
-        if (!authUser) {
-            toast.error("Please login to rate.");
-            return;
-        }
-
-        const userId = authUser?._id || authUser?.id || authUser?.userId;
-        if (!userId) {
-            toast.error("User ID not found, please login again.");
-            return;
-        }
-
+    const handleRate = async (value) => {
+        if (!authUser) return toast.error("Login required.");
+        setRating(value);
         try {
-            const response = await rateMovie(id, value, userId);
-            setRating(value);
-            if (response.newAverageRating) {
-                setAverageRating(response.newAverageRating);
-            }
-            toast.success("Oyunuz kaydedildi!");
-        } catch (err) {
-            toast.error("Oy kaydedilirken hata oluştu.");
-            console.error("Rating error:", err);
+            await rateMovie(id, value, authUser._id);
+        } catch (error) {
+            console.error(error);
         }
     };
 
@@ -87,7 +62,18 @@ const MoviePage = () => {
         await toggleLike(commentId);
     };
 
-    const formattedDate = movie?.releaseDate
+    if (loading) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <Loader className="size-15 animate-spin" />
+            </div>
+        );
+    }
+
+    if (error) return <div className="mt-16 text-red-500">{error}</div>;
+    if (!movie) return <div className="mt-16 text-white">Movie not found.</div>;
+
+    const formattedDate = movie.releaseDate
         ? new Date(movie.releaseDate).toLocaleDateString(undefined, {
             year: "numeric",
             month: "long",
@@ -104,18 +90,7 @@ const MoviePage = () => {
         }
     };
 
-    const videoId = extractYouTubeId(movie?.trailerLink);
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center h-screen">
-                <Loader className="size-15 animate-spin" />
-            </div>
-        );
-    }
-
-    if (error) return <div className="mt-16 text-red-500">{error}</div>;
-    if (!movie) return <div className="mt-16 text-white">Movie not found.</div>;
+    const videoId = extractYouTubeId(movie.trailerLink);
 
     return (
         <div className="relative min-h-screen bg-gradient-to-b from-zinc-900 to-black text-white">
@@ -137,8 +112,11 @@ const MoviePage = () => {
                     <div className="md:col-span-3 bg-zinc-800 rounded-xl shadow-lg p-6 space-y-6">
                         <h1 className="text-4xl font-bold">{movie.title}</h1>
                         <div className="flex items-center gap-6 text-sm text-gray-300">
-                            <span className="bg-yellow-500 text-black font-semibold px-2 py-1 rounded flex items-center gap-1">
-                                ⭐ {typeof averageRating === "number" ? averageRating.toFixed(1) : "0.0"}
+                            <span className="bg-yellow-500 text-black px-2 py-1 rounded font-semibold">
+                                ⭐ {typeof movie.averageRating === "number" ? movie.averageRating.toFixed(1) : "?"}
+                            </span>
+                            <span className="text-gray-400 text-sm">
+                                ({movie.ratingsCount || 0} rating{movie.ratingsCount === 1 ? "" : "s"})
                             </span>
                             <span>{formattedDate}</span>
                             <span>{movie.duration} min</span>
@@ -158,27 +136,27 @@ const MoviePage = () => {
                         {movie.genre && (
                             <p>
                                 <strong>Genres:</strong>{" "}
-                                {Array.isArray(movie.genre) ? movie.genre.join(", ") : movie.genre}
+                                {Array.isArray(movie.genre)
+                                    ? movie.genre.join(", ")
+                                    : movie.genre}
                             </p>
                         )}
-
                         <section className="flex items-center gap-2 mt-4">
-                            {[1, 2, 3, 4, 5].map((i) => (
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
                                 <Star
                                     key={i}
-                                    onClick={() => handleRating(i)}
-                                    className={`w-7 h-7 cursor-pointer transition ${i <= rating ? "text-yellow-400" : "text-gray-600"
-                                        }`}
+                                    onClick={() => handleRate(i)}
+                                    className={`w-6 h-6 cursor-pointer transition ${i <= rating ? "text-yellow-400" : "text-gray-500"}`}
                                 />
                             ))}
+
                             <span className="ml-2 text-lg text-gray-300">
-                                {rating > 0 ? `You rated: ${rating}/5` : "Rate this movie"}
+                                {rating > 0 ? `You rated: ${rating}/10` : "Rate this movie"}
                             </span>
                         </section>
                     </div>
                 </section>
 
-                {/* Trailer ve yorumlar kısmı burada değişmedi */}
                 <section className="bg-zinc-800 p-6 rounded-xl shadow-lg">
                     <h2 className="text-4xl font-semibold mb-4">🎬 Trailer</h2>
                     {videoId ? (
@@ -217,7 +195,7 @@ const MoviePage = () => {
                     </div>
 
                     <div className="space-y-4 max-h-96 overflow-y-auto">
-                        {loadingComments ? (
+                        {commentLoading ? (
                             <p className="text-gray-400 italic">Loading comments...</p>
                         ) : comments.length === 0 ? (
                             <p className="text-gray-400 italic">No comments yet. Be the first!</p>

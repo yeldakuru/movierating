@@ -23,8 +23,8 @@ const TvShowPage = () => {
 
     // Burada rating kullanıcı oyunu tutacak
     const [rating, setRating] = useState(0);
-    // Ortalama puan
-    const [averageRating, setAverageRating] = useState(tvShow?.averageRating || 0);
+
+
     const [commentText, setCommentText] = useState("");
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editCommentText, setEditCommentText] = useState("");
@@ -35,12 +35,20 @@ const TvShowPage = () => {
             await fetchCommentsByTvShow(id);
         };
         fetch();
-    }, [id]);
+    }, [id, getTvShowById, fetchCommentsByTvShow]);
 
-    // TV show yüklendikçe, kullanıcı oyu varsa rating state’ini güncelle
-    useEffect(() => {
-        setAverageRating(tvShow?.averageRating || 0);
-    }, [tvShow?.averageRating]);
+
+    const handleRate = async (value) => {
+        if (!authUser) return toast.error("Login required.");
+        setRating(value);
+        try {
+            await rateTvShow(id, value, authUser._id);
+            await getTvShowById(id);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
 
     const handleAddComment = async () => {
         if (!authUser) return toast.error("Login required.");
@@ -62,31 +70,6 @@ const TvShowPage = () => {
         }
     };
 
-    const handleRating = async (value) => {
-        if (!authUser) {
-            toast.error("Please login to rate.");
-            return;
-        }
-
-        const userId = authUser?._id || authUser?.id || authUser?.userId;
-        if (!userId) {
-            toast.error("User ID not found, please login again.");
-            return;
-        }
-
-        try {
-            const response = await rateTvShow(id, value, userId);
-            setRating(value);
-            if (response.newAverageRating) {
-                setAverageRating(response.newAverageRating);
-            }
-            toast.success("Oyunuz kaydedildi!");
-        } catch (err) {
-            toast.error("Oy kaydedilirken hata oluştu.");
-        }
-    };
-
-
     const videoId = extractYouTubeId(tvShow?.trailerLink);
     const formattedDate = tvShow?.releaseDate
         ? new Date(tvShow.releaseDate).toLocaleDateString()
@@ -104,89 +87,59 @@ const TvShowPage = () => {
     if (!tvShow) return <p className="text-white mt-16">TV Show not found.</p>;
 
     return (
-        <div className="relative min-h-screen bg-gradient-to-b from-zinc-900 to-black text-white">
+        <div className="bg-gradient-to-b from-zinc-900 to-black min-h-screen text-white">
             <div
                 className="absolute inset-0 -z-10 opacity-20 blur-md bg-cover bg-center"
                 style={{ backgroundImage: `url(${tvShow.photo})` }}
-                aria-hidden="true"
             />
-
-            <main className="max-w-7xl mx-auto px-4 pt-20 pb-12 space-y-12">
+            <main className="max-w-6xl mx-auto pt-24 px-4 pb-12 space-y-12">
                 <section className="grid grid-cols-1 md:grid-cols-6 gap-6">
-                    <div className="md:col-span-3">
-                        <img
-                            src={tvShow.photo}
-                            alt={tvShow.title}
-                            className="w-full object-cover max-h-[430px] rounded-xl shadow-lg"
-                        />
-                    </div>
-                    <div className="md:col-span-3 bg-zinc-800 rounded-xl shadow-lg p-6 space-y-6">
+                    <img
+                        src={tvShow.photo}
+                        alt={tvShow.title}
+                        className="md:col-span-3 rounded-xl shadow-lg object-cover max-h-[430px] w-full"
+                    />
+                    <div className="md:col-span-3 space-y-6 bg-zinc-800 p-6 rounded-xl shadow-lg">
                         <h1 className="text-4xl font-bold">{tvShow.title}</h1>
-                        <div className="flex items-center gap-6 text-sm text-gray-300">
-                            {/* Ortalama puanı ayrı gösteriyoruz */}
-                            <span className="bg-yellow-500 text-black font-semibold px-2 py-1 rounded flex items-center gap-1">
-                                ⭐ {(typeof averageRating === "number" ? averageRating.toFixed(1) : "0.0")}
+                        <div className="flex gap-4 text-sm text-gray-300">
+                            <span className="bg-yellow-500 text-black px-2 py-1 rounded font-semibold">
+                                ⭐ {typeof tvShow.averageRating === "number" ? tvShow.averageRating.toFixed(1) : "?"}
                             </span>
-
-
+                            <span className="text-gray-400 text-sm">
+                                ({tvShow.ratingsCount || 0} rating{tvShow.ratingsCount === 1 ? "" : "s"})
+                            </span>
                             <span>{formattedDate}</span>
-                            <span>{tvShow.duration} min</span>
+                            <span>{tvShow.seasons || 1} season(s)</span>
                         </div>
-                        <p className="text-gray-200">{tvShow.description}</p>
-                        <h2 className="text-2xl font-semibold">Details</h2>
-                        {tvShow.director && (
-                            <p>
-                                <strong>Director:</strong> {tvShow.director}
-                            </p>
-                        )}
-                        {tvShow.cast && (
-                            <p>
-                                <strong>Cast:</strong> {tvShow.cast.join(", ")}
-                            </p>
-                        )}
-                        {tvShow.genre && (
-                            <p>
-                                <strong>Genres:</strong>{" "}
-                                {Array.isArray(tvShow.genre)
-                                    ? tvShow.genre.join(", ")
-                                    : tvShow.genre}
-                            </p>
-                        )}
-
-                        {/* Kullanıcının verdiği oy (rating) ve tıklanabilir yıldızlar */}
-                        <section className="flex items-center gap-2 mt-4">
-                            {[1, 2, 3, 4, 5].map((i) => (
+                        <p>{tvShow.description}</p>
+                        <p><strong>Genres:</strong> {Array.isArray(tvShow.genre) ? tvShow.genre.join(", ") : tvShow.genre}</p>
+                        <p><strong>Cast:</strong> {tvShow.cast?.join(", ")}</p>
+                        <p><strong>Creator:</strong> {tvShow.director}</p>
+                        <div className="flex gap-2 mt-4">
+                            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => (
                                 <Star
                                     key={i}
-                                    onClick={() => handleRating(i)}
-                                    className={`w-7 h-7 cursor-pointer transition ${i <= rating ? "text-yellow-400" : "text-gray-600"
-                                        }`}
+                                    onClick={() => handleRate(i)}
+                                    className={`w-6 h-6 cursor-pointer transition ${i <= rating ? "text-yellow-400" : "text-gray-500"}`}
                                 />
                             ))}
-                            <span className="ml-2 text-lg text-gray-300">
-                                {rating > 0 ? `You rated: ${rating}/5` : "Rate this TV show"}
-                            </span>
-                        </section>
+                            <span className="ml-2 text-lg">{rating > 0 ? `You rated: ${rating}/10` : "Rate this show"}</span>
+                        </div>
                     </div>
                 </section>
 
-                {/* Trailer ve yorumlar kısmı aynı kaldı */}
                 <section className="bg-zinc-800 p-6 rounded-xl shadow-lg">
-                    <h2 className="text-4xl font-semibold mb-4">🎬 Trailer</h2>
+                    <h2 className="text-3xl font-semibold mb-4">🎬 Trailer</h2>
                     {videoId ? (
-                        <div className="aspect-video rounded-xl overflow-hidden shadow-lg">
+                        <div className="aspect-video rounded-lg overflow-hidden">
                             <YouTube
                                 videoId={videoId}
                                 className="w-full h-full"
-                                opts={{
-                                    width: "100%",
-                                    height: "100%",
-                                    playerVars: { autoplay: 0 },
-                                }}
+                                opts={{ width: "100%", height: "100%", playerVars: { autoplay: 0 } }}
                             />
                         </div>
                     ) : (
-                        <p className="text-gray-400">No valid YouTube trailer available.</p>
+                        <p className="text-gray-400">No trailer available.</p>
                     )}
                 </section>
 
@@ -195,8 +148,8 @@ const TvShowPage = () => {
                     <div className="flex flex-col gap-4 mb-6">
                         <textarea
                             rows={4}
-                            className="w-full p-3 rounded bg-zinc-700 text-white resize-none"
-                            placeholder="Write a comment..."
+                            className="w-full p-3 rounded bg-zinc-700 text-white"
+                            placeholder="Write your comment..."
                             value={commentText}
                             onChange={(e) => setCommentText(e.target.value)}
                         />
@@ -212,103 +165,83 @@ const TvShowPage = () => {
                         {loadingComments ? (
                             <p className="text-gray-400 italic">Loading comments...</p>
                         ) : comments.length === 0 ? (
-                            <p className="text-gray-400 italic">No comments yet. Be the first!</p>
+                            <p className="text-gray-400 italic">No comments yet.</p>
                         ) : (
                             comments.map((c) => {
                                 const isOwner = authUser?.username === c.user;
                                 return (
-                                    <article
-                                        key={c.id}
-                                        className="bg-zinc-700 p-4 rounded shadow flex justify-between items-start"
-                                    >
+                                    <div key={c.id} className="bg-zinc-700 p-4 rounded shadow flex justify-between items-start">
                                         <div className="flex-grow">
-                                            <header className="text-sm text-gray-300 mb-2 font-semibold flex  gap-4">
-                                                <span>{c.user}</span>
-                                                <time>
-                                                    {c.date
-                                                        ? new Date(c.date).toLocaleString()
-                                                        : "Unknown date"}
-                                                </time>
-                                            </header>
-
+                                            <div className="text-sm text-gray-300 font-semibold mb-1">
+                                                {c.user} · {new Date(c.date).toLocaleString()}
+                                            </div>
                                             {editingCommentId === c.id ? (
                                                 <textarea
                                                     rows={3}
-                                                    className="w-full p-2 rounded bg-zinc-600 text-white resize-none"
                                                     value={editCommentText}
                                                     onChange={(e) => setEditCommentText(e.target.value)}
+                                                    className="w-full bg-zinc-600 p-2 rounded text-white"
                                                 />
                                             ) : (
-                                                <p className="text-white">{c.text}</p>
+                                                <p>{c.text}</p>
                                             )}
                                         </div>
-
                                         <div className="flex flex-col items-end gap-2 ml-4">
                                             <button
                                                 onClick={() => handleToggleLike(c.id)}
-                                                className={`flex items-center gap-1 text-sm select-none ${c.likedByUser ? "text-green-400" : "text-gray-400"
-                                                    } hover:text-green-500 transition`}
-                                                title="Like"
+                                                className={`flex items-center gap-1 text-sm ${c.likedByUser ? "text-green-400" : "text-gray-400"}`}
                                             >
                                                 <ThumbsUp className="w-5 h-5" />
-                                                <span>{c.likesCount}</span>
+                                                {c.likesCount}
                                             </button>
-
                                             {isOwner && (
-                                                <>
-                                                    {editingCommentId === c.id ? (
-                                                        <>
-                                                            <button
-                                                                onClick={async () => {
-                                                                    if (!editCommentText.trim()) {
-                                                                        toast.error("Comment cannot be empty.");
-                                                                        return;
-                                                                    }
-                                                                    await updateComment(c.id, editCommentText);
-                                                                    setEditingCommentId(null);
-                                                                }}
-                                                                className="text-green-400 hover:text-green-600 text-sm"
-                                                            >
-                                                                Save
-                                                            </button>
-                                                            <button
-                                                                onClick={() => setEditingCommentId(null)}
-                                                                className="text-red-400 hover:text-red-600 text-sm"
-                                                            >
-                                                                Cancel
-                                                            </button>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <button
-                                                                onClick={() => {
-                                                                    setEditingCommentId(c.id);
-                                                                    setEditCommentText(c.text);
-                                                                }}
-                                                                className="text-yellow-400 hover:text-yellow-600 text-sm"
-                                                            >
-                                                                <Pen />
-                                                            </button>
-                                                            <button
-                                                                onClick={async () => {
-                                                                    if (
-                                                                        window.confirm(
-                                                                            "Are you sure you want to delete this comment?"
-                                                                        )
-                                                                    ) {
-                                                                        await deleteComment(c.id);
-                                                                    }
-                                                                }}
-                                                                className="text-red-400 hover:text-red-600 text-sm"
-                                                            >
-                                                                <Trash2 />
-                                                            </button>
-                                                        </>
-                                                    )}
-                                                </>
+                                                editingCommentId === c.id ? (
+                                                    <>
+                                                        <button
+                                                            onClick={async () => {
+                                                                if (!editCommentText.trim()) {
+                                                                    return toast.error("Comment can't be empty.");
+                                                                }
+                                                                await updateComment(c.id, editCommentText);
+                                                                setEditingCommentId(null);
+                                                            }}
+                                                            className="text-green-400 text-sm"
+                                                        >
+                                                            Save
+                                                        </button>
+                                                        <button
+                                                            onClick={() => setEditingCommentId(null)}
+                                                            className="text-red-400 text-sm"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <button
+                                                            onClick={() => {
+                                                                setEditingCommentId(c.id);
+                                                                setEditCommentText(c.text);
+                                                            }}
+                                                            className="text-yellow-400 text-sm"
+                                                        >
+                                                            <Pen />
+                                                        </button>
+                                                        <button
+                                                            onClick={async () => {
+                                                                if (window.confirm("Delete this comment?")) {
+                                                                    await deleteComment(c.id);
+                                                                }
+                                                            }}
+                                                            className="text-red-400 text-sm"
+                                                        >
+                                                            <Trash2 />
+                                                        </button>
+                                                    </>
+                                                )
                                             )}
                                         </div>
-                                    </article>
+                                    </div>
                                 );
                             })
                         )}
@@ -318,5 +251,4 @@ const TvShowPage = () => {
         </div>
     );
 };
-
 export default TvShowPage;
