@@ -56,5 +56,5 @@ const movieSchema = new mongoose.Schema({
     }],
 }, { timestamps: true });
 
-const Movie = mongoose.model("Movie", movieSchema);
-export default Movie;
+const Movie = mongoose.model("Movie", movieSchema); // Create a model named "User" using the userSchema
+export default Movie; // Export the User model for use in other parts of the application

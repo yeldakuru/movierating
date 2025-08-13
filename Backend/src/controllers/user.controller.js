@@ -24,9 +24,9 @@ export const register = async (req, res) => {
             password,
         });
 
-        if (newUser) {//kullanıcı oluşturulduysa token oluştur
+        if (newUser) {
             // generate jwt token here
-            generateToken(newUser._id, res);// generateToken fonksiyonunu çağırarak token oluştur
+            generateToken(newUser._id, res);
             await newUser.save();
 
             res.status(201).json({
@@ -43,8 +43,8 @@ export const register = async (req, res) => {
         res.status(500).json({ message: "Internal Server Error" });
     }
 };
+
 export const login = async (req, res) => {
-    // res.send("Login route is working"); // Send a response when the root route is accessed 
 
     const { email, password } = req.body; // Destructure email and password from the request body
 
@@ -55,12 +55,12 @@ export const login = async (req, res) => {
             return res.status(404).json({ message: "User not found!!" }); // Send a 404 response if the user is not found
         }
 
-        const isMatch = await user.comparePassword(password); // şifreyi dbdeki kullanıcı şifresiyle karşılaştır
+        const isMatch = await user.comparePassword(password); // Compare the provided password with the stored password using the compare method
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid credentials" }); // Send a 400 response if the password does not match
         }
 
-        generateToken(user._id, res); //Kullanıcı için bir token oluşturun ve yanıt olarak gönderin
+        generateToken(user._id, res); // Generate a token for the user and send it in the response
         return res.status(200).json({ message: "Login successful", user }); // Send a 200 response if the login is successful
 
     } catch (error) {
@@ -70,13 +70,11 @@ export const login = async (req, res) => {
 };
 
 export const logout = async (req, res) => {
-    // res.send("logout route is working"); // Send a response when the root route is accessed
-
     try {
         res.clearCookie("token", { // Clear the token cookie from the response
-            httpOnly: true,// HTTP üzerinden erişilebilir, JavaScript tarafından erişilemez
-            secure: true,//yalnızca HTTPS üzerinden gönderilir
-            sameSite: "none",//farklı alan adlarından gelen isteklerde kullanılabilir
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
         });
 
         return res.status(200).json({ message: "Logout successful" }); // Send a 200 response if the logout is successful
@@ -92,7 +90,7 @@ export const checkUser = async (req, res) => {
             return res.status(401).json({ message: "Unauthorized" });
         }
 
-        res.status(200).json({
+        res.status(200).json({ // added user object name to access it in the frontend
             user: {
                 _id: req.user._id,
                 username: req.user.username,
@@ -107,11 +105,11 @@ export const checkUser = async (req, res) => {
 };
 
 export const updateProfile = async (req, res) => {
-    try {//ismi ve profil resmini güncellemek için
+    try {
         const { username, profilePic } = req.body;
         const userId = req.user._id;
 
-        const updateFields = {};//onaylandığında güncellenecek obje 
+        const updateFields = {};
 
         // Handle username
         if (username) {
@@ -124,9 +122,7 @@ export const updateProfile = async (req, res) => {
         // Handle profilePic
         if (profilePic) {
             if (typeof profilePic !== "string" || profilePic.trim() === "") {
-                return res
-                    .status(400)
-                    .json({ message: "Profile picture is invalid or empty" });
+                return res.status(400).json({ message: "Profile picture is invalid or empty" });
             }
 
             const uploadResponse = await cloudinary.uploader.upload(profilePic, {
@@ -137,20 +133,13 @@ export const updateProfile = async (req, res) => {
 
         // If nothing is provided
         if (Object.keys(updateFields).length === 0) {
-            return res
-                .status(400)
-                .json({ message: "No data provided for update" });
+            return res.status(400).json({ message: "No data provided for update" });
         }
 
         // Perform the update
-        const updatedUser = await User.findByIdAndUpdate(userId, updateFields, {
-            new: true,
-        }).select("-password");
+        const updatedUser = await User.findByIdAndUpdate(userId, updateFields, { new: true, }).select("-password");
 
-        res.status(200).json({
-            message: "Profile updated successfully",
-            user: updatedUser,
-        });
+        res.status(200).json({ message: "Profile updated successfully", user: updatedUser, });
     } catch (error) {
         console.error("Error updating profile:", error);
         res.status(500).json({ message: "Internal server error" });

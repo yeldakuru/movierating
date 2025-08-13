@@ -9,21 +9,20 @@ const rateSchema = new mongoose.Schema({
     movieId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Movie",
-        required: false,
+        required: false, // Optional, as ratings can be for either TV shows or movies
     },
     tvShowId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "TVShow",
-        required: false,
+        ref: "TvShow",
+        required: false, // Optional, as ratings can be for either TV shows or movies
     },
     rate: {
         type: Number,
         required: true,
-        min: 1,
-        max: 10
-    }
+        min: 1, // Minimum rating value
+        max: 10, // Maximum rating value
+    },
 }, { timestamps: true });
 
 const Rate = mongoose.model("Rate", rateSchema);
-export default Rate;
-// Bu model, kullanıcıların filmler ve TV şovları için verdikleri puanları tutar.
+export default Rate; 

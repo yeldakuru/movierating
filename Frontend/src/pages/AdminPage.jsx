@@ -37,28 +37,57 @@ const AdminPage = () => {
 
             const prepared = {
                 ...selectedItem,
-                releaseDate: selectedItem.releaseDate?.split("T")[0] || "", // format yyyy-MM-dd
-                endDate: selectedItem.endDate?.split("T")[0] || "",         // optional
+                releaseDate: selectedItem.releaseDate?.split("T")[0] || "",
+                endDate: selectedItem.endDate?.split("T")[0] || "",
+                genre: Array.isArray(selectedItem.genre)
+                    ? selectedItem.genre.join(", ")
+                    : (typeof selectedItem.genre === "string" ? selectedItem.genre : ""),
+                cast: Array.isArray(selectedItem.cast)
+                    ? selectedItem.cast.join(", ")
+                    : (typeof selectedItem.cast === "string" ? selectedItem.cast : ""),
             };
 
             setFormData(prepared);
         }
     }, [selectedItem]);
 
+
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
+
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         const data = new FormData();
 
-        // Append all fields except 'photo'
+        // Append all fields except 'photo', genre, and cast
         Object.entries(formData).forEach(([key, val]) => {
-            if (key !== "photo") data.append(key, val);
+            if (["photo", "genre", "cast"].includes(key)) return;
+            data.append(key, val);
         });
+
+        // Handle genre
+        if (formData.genre) {
+            const genreArray = Array.isArray(formData.genre)
+                ? formData.genre
+                : formData.genre.split(",");
+
+            genreArray.forEach((g) => data.append("genre", g.trim()));
+        }
+
+        // Handle cast
+        if (formData.cast) {
+            const castArray = Array.isArray(formData.cast)
+                ? formData.cast
+                : formData.cast.split(",");
+
+            castArray.forEach((c) => data.append("cast", c.trim()));
+        }
 
         // Append file as 'photo' if selected
         if (file) data.append("photo", file);

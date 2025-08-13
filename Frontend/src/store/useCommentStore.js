@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { axiosInstance } from "../lib/axios.js";
 import toast from "react-hot-toast";
-import { useUserStore } from "./useUserStore"; // import inside the file
+import { useUserStore } from "./useUserStore.js"; // import inside the file
 
 const useCommentStore = create((set) => ({
     comments: [],
@@ -135,6 +135,7 @@ const useCommentStore = create((set) => ({
             set({ postingComment: false });
         }
     },
+
     updateComment: async (commentId, newText) => {
         if (!newText.trim()) {
             toast.error("Comment cannot be empty.");

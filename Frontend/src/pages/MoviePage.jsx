@@ -40,6 +40,7 @@ const MoviePage = () => {
         setRating(value);
         try {
             await rateMovie(id, value, authUser._id);
+            await getMovieById(id); // Refresh movie data
         } catch (error) {
             console.error(error);
         }

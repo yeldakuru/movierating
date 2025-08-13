@@ -7,11 +7,11 @@ dotenv.config();
 export const adminOnly = (req, res, next) => {
     const adminEmail = process.env.ADMIN_EMAIL;
 
-    if (!req.user || req.user.email !== adminEmail) {//eğer kullanıcı yoksa veya kullanıcının emaili admin emailiyle eşleşmiyorsa
+    if (!req.user || req.user.email !== adminEmail) {
         return res.status(403).json({ message: "Access denied. Admins only." });
     }
 
-    next();//sıradaki fonksiyona geç
+    next();
 };
 
 export const userLoggedIn = async (req, res, next) => {
@@ -40,7 +40,7 @@ export const userLoggedIn = async (req, res, next) => {
         res.status(500).json({ message: "Unauthorized !!" }); // Send a 401 response if an error occurs
         console.error("Error in authMiddleware:", error); // Log the error to the console
     }
-};
+}
 
 export const isCommentOwnerOrAdmin = async (req, res, next) => {
     try {

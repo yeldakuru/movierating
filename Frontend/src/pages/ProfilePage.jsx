@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useUserStore } from '../store/useUserStore.js';
 import { Droplet } from 'lucide-react';
 import { toast } from 'react-hot-toast';

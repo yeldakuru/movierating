@@ -6,7 +6,6 @@ const likesSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
-
     commentId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Comment",
@@ -14,5 +13,5 @@ const likesSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-const Likes = mongoose.model("Likes", likesSchema); // Create a model named "Likes" using the likesSchema
-export default Likes; // Export the Likes model for use in other parts of the application
+const Likes = mongoose.model("Likes", likesSchema); // Create a model named "Comment" using the commentSchema
+export default Likes; // Export the Comment model for use in other parts of the application

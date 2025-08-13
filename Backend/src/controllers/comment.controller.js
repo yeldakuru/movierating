@@ -12,7 +12,7 @@ export const createComment = async (req, res) => {
         }
 
         const newComment = new Comment({
-            userId: req.user._id,//kullanıcı idsini al 
+            userId: req.user._id,
             movieId: movieId || undefined,
             tvShowId: tvShowId || undefined,
             commentText,
@@ -21,9 +21,9 @@ export const createComment = async (req, res) => {
         await newComment.save();
 
         if (movieId) {
-            await Movie.findByIdAndUpdate(movieId, { $push: { comments: newComment._id } });//bu filmin idsini alır ve yeni yorumu bu filme ekler(movie deki comments arrayine ekler)
+            await Movie.findByIdAndUpdate(movieId, { $push: { comments: newComment._id } });
         } else if (tvShowId) {
-            await TvShow.findByIdAndUpdate(tvShowId, { $push: { comments: newComment._id } });//push ekle ,pull çıkar
+            await TvShow.findByIdAndUpdate(tvShowId, { $push: { comments: newComment._id } });
         }
 
         res.status(201).json(newComment);
@@ -56,7 +56,7 @@ export const deleteComment = async (req, res) => {
             await TvShow.findByIdAndUpdate(comment.tvShowId, { $pull: { comments: comment._id } });
         }
 
-        await Likes.deleteMany({ commentId: comment._id });// tüm beğenileri sil
+        await Likes.deleteMany({ commentId: comment._id });
         await comment.deleteOne();
         res.status(200).json({ message: 'Comment deleted successfully' });
     } catch (error) {
@@ -66,16 +66,16 @@ export const deleteComment = async (req, res) => {
 
 export const toggleLikeComment = async (req, res) => {
     try {
-        const existingLike = await Likes.findOne({ userId: req.user._id, commentId: req.params.id });
+        const existingLike = await Likes.findOne({ userId: req.user._id, commentId: req.params.id }); // Check if the user has already liked the comment
 
         if (existingLike) {
-            await Likes.findByIdAndDelete(existingLike._id);
-            await Comment.findByIdAndUpdate(req.params.id, { $pull: { likes: existingLike._id } });
+            await Likes.findByIdAndDelete(existingLike._id); // Remove the like from the Likes database
+            await Comment.findByIdAndUpdate(req.params.id, { $pull: { likes: existingLike._id } }); // Remove the like from the comment's likes array
             return res.status(200).json({ message: 'Like removed' });
         } else {
-            const newLike = new Likes({ userId: req.user._id, commentId: req.params.id });
-            await newLike.save();
-            await Comment.findByIdAndUpdate(req.params.id, { $push: { likes: newLike._id } });
+            const newLike = new Likes({ userId: req.user._id, commentId: req.params.id }); // Create a new like model instance
+            await newLike.save(); // Save the new like to the Likes database
+            await Comment.findByIdAndUpdate(req.params.id, { $push: { likes: newLike._id } }); // Add the like to the comment's likes array
             return res.status(201).json({ message: 'Like added' });
         }
     } catch (error) {

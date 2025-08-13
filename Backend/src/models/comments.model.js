@@ -9,21 +9,21 @@ const commentSchema = new mongoose.Schema({
     tvShowId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "TvShow",
-        required: false,
+        required: false, // Optional, as comments can be for either TV shows or movies
     },
     movieId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Movie",
-        required: false,
+        required: false, // Optional, as comments can be for either TV shows or movies
     },
+    likes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Likes",
+    }],
     commentText: {
         type: String,
         required: true,
     },
-    likes: [{//bir yorum birden fazla beğeni alabilir bu yüzden array şeklinde
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Likes",
-    }],
 }, { timestamps: true });
 
 const Comment = mongoose.model("Comment", commentSchema); // Create a model named "Comment" using the commentSchema

@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const tvshowSchema = new mongoose.Schema({
+const tvShowSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
@@ -18,18 +18,16 @@ const tvshowSchema = new mongoose.Schema({
         type: [String],
         enum: ["comedy", "action", "horror", "romance", "documentary", "drama", "thriller", "sci-fi", "fantasy"],
         required: true,
-
     },
     seasonNumber: {
         type: Number,
         required: true,
-        min: 1, // En az 1 sezon olmalı
-
+        min: 1, // At least one season
     },
     episodeNumber: {
         type: Number,
         required: true,
-        min: 1, // En az 1 bölüm olmalı
+        min: 1, // At least one episode
     },
     releaseDate: {
         type: Date,
@@ -37,38 +35,37 @@ const tvshowSchema = new mongoose.Schema({
     },
     endDate: {
         type: Date,
-        required: false, // Bitiş tarihi zorunlu değil
-        default: Date.now, // Eğer bitiş tarihi belirtilmezse, şu anki tarih kullanılır
+        required: false,
+        default: Date.now, // Default to current date if not provided
     },
-    director: {
-        type: String,
-        required: true,
-    },
-
     trailerLink: {
         type: String,
         required: true,
         default: "",
     },
+    director: {
+        type: String,
+        required: true,
+    },
+    cast: {
+        type: [String], // Array of actor names
+        required: true,
+    },
     averageRating: {
         type: Number,
-        default: 0, // Başlangıçta ortalama puan 0 olarak ayarlanır
-        min: 0, // Puan 0 ile 10 arasında olmalıdır
-        max: 10, // Puan 0 ile 10 arasında olmalıdır
+        default: 0,
+        min: 0,
+        max: 10
     },
-    ratingCount: {
+    ratingsCount: {
         type: Number,
-        default: 0, // Başlangıçta rating sayısı 0 olarak ayarlanır
+        default: 0,
     },
     comments: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Comment",
     }],
-    cast: {
-        type: [String], // Oyuncuların isimleri
-        required: true,
-    },
-}, { timestamps: true }); // createdAt ve updatedAt alanlarını otomatik olarak ekler
+}, { timestamps: true });
 
-const TvShow = mongoose.model("TVShow", tvshowSchema);
-export default TvShow;
+const TvShow = mongoose.model("TvShow", tvShowSchema); // Create a model named "User" using the userSchema
+export default TvShow; // Export the User model for use in other parts of the application

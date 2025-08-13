@@ -1,32 +1,30 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-    username: {
-        type: String,
-        required: true,
-
-    },
     email: {
         type: String,
         required: true,
         unique: true,
     },
+    username: {
+        type: String,
+        required: true,
+    },
     password: {
         type: String,
         required: true,
-
     },
-
     profilePic: {
         type: String,
         default: "",
-    },
+    }
+}, { timestamps: true });
 
-}, { timestamps: true } // createdAt ve updatedAt alanlarını otomatik olarak ekler
-);
-
+// 🔑 Add comparePassword method to schema
+// 🔓 Compare plain-text password directly
 userSchema.methods.comparePassword = async function (enteredPassword) {
     return enteredPassword === this.password;
-};// Kullanıcı şifresini karşılaştırmak için bir yöntem ekliyoruz
-const User = mongoose.model('User', userSchema);
-export default User;
+};
+
+const User = mongoose.model("User", userSchema); // Create a model named "User" using the userSchema
+export default User; // Export the User model for use in other parts of the application
